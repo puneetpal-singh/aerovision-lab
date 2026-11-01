@@ -1,0 +1,2 @@
+[console_scripts]
+aerovision = aerovision.cli:main
