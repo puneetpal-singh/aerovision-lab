@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+data/
+datasets/
+runs/
+weights/
+logs/
+*.pt
+*.onnx
+*.engine
+*.zip
