@@ -37,6 +37,7 @@ def main():
     ev.add_argument("--output", type=Path, default=Path("runs/comparison"))
     ev.add_argument("--max-det", type=int, default=300)
     ev.add_argument("--eval-max-det", type=int, default=None)
+    ev.add_argument("--mode", choices=["whole", "tiled", "both"], default="both")
     args = vars(parser.parse_args())
     command = args.pop("command")
     if command == "doctor":
@@ -54,7 +55,8 @@ def main():
     else:
         from .experiment import compare
 
-        compare(**args)
+        mode = args.pop("mode")
+        compare(**args, modes=("whole", "tiled") if mode == "both" else (mode,))
 
 
 if __name__ == "__main__":

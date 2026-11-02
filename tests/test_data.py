@@ -49,3 +49,6 @@ def test_prepare_builds_traceable_disjoint_subset_without_download(tmp_path, mon
     original = (config.parent / "manifest.json").read_bytes()
     assert data.prepare(tmp_path / "output", 2, 1) == config
     assert (config.parent / "manifest.json").read_bytes() == original
+    validation = data.prepare_validation(tmp_path / "output", 1)
+    validation_manifest = json.loads((validation.parent / "manifest.json").read_text())
+    assert validation_manifest["splits"]["val"] == manifest["splits"]["val"]

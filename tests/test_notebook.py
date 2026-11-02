@@ -10,7 +10,9 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.parametrize("name", ["AeroVision_Colab.ipynb", "AeroVision_Evaluation.ipynb"])
+@pytest.mark.parametrize(
+    "name", ["AeroVision_Colab.ipynb", "AeroVision_Evaluation.ipynb", "AeroVision_Kaggle.ipynb"]
+)
 def test_colab_cells_compile_and_bundle_matches_source(name):
     root = Path(__file__).resolve().parent.parent
     notebook = json.loads((root / "notebooks" / name).read_text(encoding="utf-8"))

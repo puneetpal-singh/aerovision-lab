@@ -173,3 +173,56 @@ def prepare(root: Path, train_count: int = 800, val_count: int = 200, seed: int 
     path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return path
+
+
+def prepare_validation(root: Path, count: int = 548, seed: int = 42) -> Path:
+    """Prepare validation alone: avoid downloading the training archive for inference."""
+    root = root.resolve()
+    output = root / f"validation-v{count}-s{seed}"
+    image_dir = output / "images/val"
+    image_dir.mkdir(parents=True, exist_ok=True)
+    archive_path = download("val", root / "archives")
+    records, annotations, ignored_records = [], [], []
+    with zipfile.ZipFile(archive_path) as archive:
+        images = sorted(n for n in archive.namelist() if "/images/" in n and n.lower().endswith(".jpg"))
+        if not 0 < count <= len(images):
+            raise ValueError("Requested validation count is outside archive bounds")
+        for image_id, member in enumerate(sorted(random.Random(seed).sample(images, count)), 1):
+            dest = image_dir / Path(member).name
+            dest.write_bytes(archive.read(member))
+            with Image.open(dest) as image:
+                width, height = image.size
+                image.verify()
+            ann = member.replace("/images/", "/annotations/").rsplit(".", 1)[0] + ".txt"
+            targets, ignored = parse_rows(archive.read(ann).decode("utf-8-sig"), width, height)
+            for target in targets:
+                annotations.append(
+                    dict(
+                        id=len(annotations) + 1,
+                        image_id=image_id,
+                        **target,
+                        area=target["bbox"][2] * target["bbox"][3],
+                        iscrowd=0,
+                    )
+                )
+            records.append(
+                dict(id=image_id, file_name=dest.name, width=width, height=height, sha256=digest(dest))
+            )
+            ignored_records.append(dict(image_id=image_id, boxes=ignored))
+    coco = dict(
+        info={},
+        images=records,
+        annotations=annotations,
+        categories=[dict(id=i, name=name) for i, name in enumerate(NAMES)],
+    )
+    (output / "val.coco.json").write_text(json.dumps(coco), encoding="utf-8")
+    (output / "val.ignored.json").write_text(json.dumps(ignored_records), encoding="utf-8")
+    (output / "manifest.json").write_text(
+        json.dumps(dict(seed=seed, splits={"val": records})), encoding="utf-8"
+    )
+    config = output / "dataset.yaml"
+    config.write_text(
+        yaml.safe_dump(dict(path=output.as_posix(), val="images/val", names=dict(enumerate(NAMES)))),
+        encoding="utf-8",
+    )
+    return config

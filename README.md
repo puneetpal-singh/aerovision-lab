@@ -58,6 +58,17 @@ Live subprocess output is streamed to the notebook. Fixed-confidence visual erro
 examples and aggregate greedy-match counts are separate from COCO AP metrics.
 The final `colab-pilot-v1-evaluation-v2.zip` saves to Drive and downloads for review.
 
+## Kaggle saved-model resolution experiment
+
+Import `notebooks/AeroVision_Kaggle.ipynb` into a private Kaggle notebook. Upload
+`colab-full-v1-60epochs-b16-results.zip` as a **private** Kaggle Dataset and attach
+it as input. Enable Internet and an available GPU accelerator, then run the cells
+in order. No Google Drive mount or GitHub token is required. The notebook checks
+the checkpoint and original validation image hashes, downloads validation only,
+and compares whole-image inference at 640/960/1280 with tiled inference at 640.
+Only one GPU is used. Download `/kaggle/working/aerovision-resolution-results.zip`
+from the output/files panel when complete. This notebook does not retrain.
+
 ## CPU development
 
 The local environment remains available for source edits and CPU tests. Do not

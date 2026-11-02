@@ -117,6 +117,7 @@ def compare(
     output: Path = Path("runs/comparison"),
     max_det: int = 300,
     eval_max_det: int | None = None,
+    modes: tuple[str, ...] = ("whole", "tiled"),
 ) -> dict:
     import copy
     import cv2
@@ -129,6 +130,8 @@ def compare(
     from .tiles import predict
 
     eval_max_det = eval_max_det or max_det
+    if not modes or any(mode not in ("whole", "tiled") for mode in modes):
+        raise ValueError("Modes must be whole and/or tiled")
     if max_det < 10 or eval_max_det < max_det:
         raise ValueError("Require max_det >= 10 and eval_max_det >= max_det")
 
@@ -181,7 +184,7 @@ def compare(
         "image_ids": sorted(ids),
         "modes": {},
     }
-    for mode in ("whole", "tiled"):
+    for mode in modes:
         rows, timings, counts = [], [], []
         # Warm up each mode on an actual image, outside timing.
         first = cv2.imread(str(root / "images/val" / images[0]["file_name"]))
