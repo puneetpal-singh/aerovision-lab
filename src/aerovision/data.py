@@ -175,13 +175,15 @@ def prepare(root: Path, train_count: int = 800, val_count: int = 200, seed: int 
     return path
 
 
-def prepare_validation(root: Path, count: int = 548, seed: int = 42) -> Path:
-    """Prepare validation alone: avoid downloading the training archive for inference."""
+def prepare_validation(root: Path, count: int = 548, seed: int = 42, split: str = "val") -> Path:
+    """Prepare one evaluation split, downloading no training data."""
+    if split not in ("val", "test-dev"):
+        raise ValueError("Evaluation split must be val or test-dev")
     root = root.resolve()
-    output = root / f"validation-v{count}-s{seed}"
-    image_dir = output / "images/val"
+    output = root / (f"validation-v{count}-s{seed}" if split == "val" else f"test-dev-n{count}-s{seed}")
+    image_dir = output / "images" / split
     image_dir.mkdir(parents=True, exist_ok=True)
-    archive_path = download("val", root / "archives")
+    archive_path = download(split, root / "archives")
     records, annotations, ignored_records = [], [], []
     with zipfile.ZipFile(archive_path) as archive:
         images = sorted(n for n in archive.namelist() if "/images/" in n and n.lower().endswith(".jpg"))
@@ -215,14 +217,19 @@ def prepare_validation(root: Path, count: int = 548, seed: int = 42) -> Path:
         annotations=annotations,
         categories=[dict(id=i, name=name) for i, name in enumerate(NAMES)],
     )
-    (output / "val.coco.json").write_text(json.dumps(coco), encoding="utf-8")
-    (output / "val.ignored.json").write_text(json.dumps(ignored_records), encoding="utf-8")
+    (output / f"{split}.coco.json").write_text(json.dumps(coco), encoding="utf-8")
+    (output / f"{split}.ignored.json").write_text(json.dumps(ignored_records), encoding="utf-8")
     (output / "manifest.json").write_text(
-        json.dumps(dict(seed=seed, splits={"val": records})), encoding="utf-8"
+        json.dumps(
+            dict(seed=seed, source_split=split, archive_sha256=digest(archive_path), splits={split: records})
+        ),
+        encoding="utf-8",
     )
     config = output / "dataset.yaml"
     config.write_text(
-        yaml.safe_dump(dict(path=output.as_posix(), val="images/val", names=dict(enumerate(NAMES)))),
+        yaml.safe_dump(
+            dict(path=output.as_posix(), names=dict(enumerate(NAMES)), **{split: f"images/{split}"})
+        ),
         encoding="utf-8",
     )
     return config

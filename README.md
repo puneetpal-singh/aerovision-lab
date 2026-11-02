@@ -69,6 +69,18 @@ and compares whole-image inference at 640/960/1280 with tiled inference at 640.
 Only one GPU is used. Download `/kaggle/working/aerovision-resolution-results.zip`
 from the output/files panel when complete. This notebook does not retrain.
 
+## Frozen test-dev evaluation
+
+Import `notebooks/AeroVision_TestDev.ipynb` into a private Kaggle notebook and
+attach the same full-data results Dataset. Enable Internet, a hosted T4 GPU and
+Files-only persistence. The notebook evaluates the frozen PyTorch model at 1280
+and the predeclared 640 baseline on all 1610 test-dev images. It uses confidence
+0.001 for AP integration and the fixed validation-selected 0.30 operating point.
+It does not search thresholds or retrain. Exact image hashes are checked against
+training/validation. Results use the existing custom COCO-style protocol, not
+the official VisDrone challenge evaluator. Download `aerovision-testdev-results.zip`;
+predictions and annotations are included for subsequent CPU review.
+
 ## CPU development
 
 ONNX export and CPU verification are documented in

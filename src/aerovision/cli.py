@@ -38,6 +38,7 @@ def main():
     ev.add_argument("--max-det", type=int, default=300)
     ev.add_argument("--eval-max-det", type=int, default=None)
     ev.add_argument("--mode", choices=["whole", "tiled", "both"], default="both")
+    ev.add_argument("--split", choices=["val", "test-dev"], default="val")
     args = vars(parser.parse_args())
     command = args.pop("command")
     if command == "doctor":

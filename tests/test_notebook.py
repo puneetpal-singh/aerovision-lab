@@ -11,7 +11,13 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "name", ["AeroVision_Colab.ipynb", "AeroVision_Evaluation.ipynb", "AeroVision_Kaggle.ipynb"]
+    "name",
+    [
+        "AeroVision_Colab.ipynb",
+        "AeroVision_Evaluation.ipynb",
+        "AeroVision_Kaggle.ipynb",
+        "AeroVision_TestDev.ipynb",
+    ],
 )
 def test_colab_cells_compile_and_bundle_matches_source(name):
     root = Path(__file__).resolve().parent.parent

@@ -118,6 +118,7 @@ def compare(
     max_det: int = 300,
     eval_max_det: int | None = None,
     modes: tuple[str, ...] = ("whole", "tiled"),
+    split: str = "val",
 ) -> dict:
     import copy
     import cv2
@@ -129,6 +130,9 @@ def compare(
     from .data import digest
     from .tiles import predict
 
+    if split not in ("val", "test-dev"):
+        raise ValueError("Evaluation split must be val or test-dev")
+
     eval_max_det = eval_max_det or max_det
     if not modes or any(mode not in ("whole", "tiled") for mode in modes):
         raise ValueError("Modes must be whole and/or tiled")
@@ -137,13 +141,13 @@ def compare(
 
     spec = yaml.safe_load(data.read_text(encoding="utf-8"))
     root = Path(spec["path"])
-    truth = json.loads((root / "val.coco.json").read_text(encoding="utf-8"))
+    truth = json.loads((root / f"{split}.coco.json").read_text(encoding="utf-8"))
     images = truth["images"][:limit] if limit else truth["images"]
     ids = {r["id"] for r in images}
     truth["images"] = images
     truth["annotations"] = [a for a in truth["annotations"] if a["image_id"] in ids]
     # COCO crowd handling is an explicit approximation to VisDrone ignored regions.
-    ignored = json.loads((root / "val.ignored.json").read_text(encoding="utf-8"))
+    ignored = json.loads((root / f"{split}.ignored.json").read_text(encoding="utf-8"))
     next_id = max((a["id"] for a in truth["annotations"]), default=0) + 1
     for row in ignored:
         if row["image_id"] not in ids:
@@ -180,6 +184,7 @@ def compare(
             device=device,
             max_det=max_det,
             eval_max_det=eval_max_det,
+            split=split,
         ),
         "image_ids": sorted(ids),
         "modes": {},
@@ -187,13 +192,13 @@ def compare(
     for mode in modes:
         rows, timings, counts = [], [], []
         # Warm up each mode on an actual image, outside timing.
-        first = cv2.imread(str(root / "images/val" / images[0]["file_name"]))
+        first = cv2.imread(str(root / "images" / split / images[0]["file_name"]))
         if first is None:
             raise FileNotFoundError(images[0]["file_name"])
         predict(model, first, mode, imgsz, tile, overlap, 0.001, 0.7, device, max_det=max_det)
         capped_images = 0
         for record in images:
-            image = cv2.imread(str(root / "images/val" / record["file_name"]))
+            image = cv2.imread(str(root / "images" / split / record["file_name"]))
             if image is None:
                 raise FileNotFoundError(record["file_name"])
             if torch.cuda.is_available() and device != "cpu":

@@ -90,6 +90,7 @@ assert current['splits']['val'] == original['splits']['val'], 'Validation images
 print('Verified all 548 validation images. Training data was not downloaded.')
 
 def run_evaluation(label, *args):
+    import re
     command = [sys.executable, '-u', '-m', 'aerovision.cli', *map(str, args)]
     log_path = PROJECT / (label + '.log')
     print(label + ': starting', flush=True)
@@ -99,7 +100,9 @@ def run_evaluation(label, *args):
             for line in process.stdout:
                 log.write(line)
                 if 'images, cap=' in line:
-                    print(line.strip(), flush=True)
+                    progress = re.search(r'([0-9]+)/([0-9]+) images', line)
+                    if progress and (int(progress[1]) % 100 == 0 or progress[1] == progress[2]):
+                        print(line.strip(), flush=True)
             code = process.wait()
     if code:
         print('\\n'.join(log_path.read_text(errors='replace').splitlines()[-20:]))
