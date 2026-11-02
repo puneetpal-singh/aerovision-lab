@@ -23,30 +23,33 @@ The first goal is to reproduce the task and establish our own measurements. Matc
 
 Every improvement must be compared with a saved baseline on the same data and documented protocol.
 
-## Run locally
+## Train on free Google Colab
 
-Use Python 3.12. Create a project-local environment, install a CUDA-enabled PyTorch
-wheel appropriate to the GPU (see https://pytorch.org/get-started/locally/), then:
+The laptop shuts down under GPU load, so training has moved to a hosted GPU.
+The old local GPU runner is retired; CLI train/compare now default to CPU.
 
-```powershell
-python -m pip install -e ".[dev]"
-python -m aerovision.cli doctor
-python -m pytest
-python -m aerovision.cli prepare --train 800 --val 200
-python -m aerovision.cli train --data data/mini-t800-v200-s42/dataset.yaml --epochs 2 --batch 2 --name smoke
-python -m aerovision.cli train --data data/mini-t800-v200-s42/dataset.yaml --epochs 20 --batch 2 --name pilot
-python -m aerovision.cli compare --data data/mini-t800-v200-s42/dataset.yaml --weights runs/pilot/weights/best.pt
-```
+1. Download [AeroVision_Colab.ipynb](notebooks/AeroVision_Colab.ipynb).
+2. Open https://colab.research.google.com/ and choose **File > Upload notebook**.
+3. Choose **Runtime > Change runtime type > GPU** and use a hosted runtime.
+4. Run the cells in order and approve Google Drive access when prompted.
 
-The initial model is YOLO11n, not YOLO11s. Each pilot is a new fine-tune from COCO
-pretrained weights. The original 640/960/1280 study is a later milestone. Batch 2
-is a starting point, not a memory-fit guarantee. Windows uses zero loader workers
-by default. Lower batch to 1 if required, and record the deviation.
+This notebook embeds a verified source snapshot, so no GitHub token is required.
+Keep it private. Dataset images stay on Colab scratch storage; run artifacts and
+checkpoints save under `My Drive/AeroVisionLab/runs/` each epoch. Rerunning the
+notebook rebuilds the same subset and resumes an unfinished saved checkpoint.
+It also saves the exact source bundle in Drive. Free GPU access and runtime
+lifetimes vary; this notebook has not yet been executed in your Colab account.
 
-For a hosted GPU, open [the notebook](notebooks/aerovision_pilot.ipynb) in Colab or
-Kaggle, enable GPU acceleration and run the cells. Private source access needs a
-read-only GitHub token supplied at runtime. No credentials belong in Git or cell
-outputs. Save checkpoints outside temporary notebook storage.
+The pilot uses YOLO11n, 800 train / 200 validation images, 640 pixels, batch 2
+and 20 epochs. It starts from COCO-pretrained weights. The earlier local smoke
+completed; the local pilot was interrupted before recording a completed epoch.
+
+## CPU development
+
+The local environment remains available for source edits and CPU tests. Do not
+run GPU benchmarks or GPU training on this laptop. The tested historical Windows
+environment is recorded in `docs/requirements-local.txt`; Colab retains its
+preinstalled PyTorch and records the versions actually used in its run metadata.
 
 ## Measurement protocol
 
