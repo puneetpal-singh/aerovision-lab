@@ -1,0 +1,48 @@
+"""Check the scoring path on known geometry, including ignored detections."""
+
+import json
+
+import numpy as np
+import pytest
+import yaml
+from PIL import Image
+
+
+def test_exact_predictions_and_ignored_regions_score_perfectly(tmp_path, monkeypatch):
+    from aerovision import experiment, tiles
+    from ultralytics import YOLO
+
+    image_dir = tmp_path / "images/val"
+    image_dir.mkdir(parents=True)
+    Image.fromarray(np.zeros((100, 100, 3), dtype=np.uint8)).save(image_dir / "sample.jpg")
+    truth = {
+        "info": {},
+        "images": [{"id": 1, "file_name": "sample.jpg", "width": 100, "height": 100}],
+        "categories": [{"id": 0, "name": "target"}],
+        "annotations": [
+            {"id": 1, "image_id": 1, "category_id": 0, "bbox": [10, 10, 10, 10], "area": 100, "iscrowd": 0}
+        ],
+    }
+    (tmp_path / "val.coco.json").write_text(json.dumps(truth))
+    (tmp_path / "val.ignored.json").write_text(json.dumps([{"image_id": 1, "boxes": [[60, 60, 30, 30]]}]))
+    (tmp_path / "manifest.json").write_text("{}")
+    data = tmp_path / "dataset.yaml"
+    data.write_text(yaml.safe_dump({"path": str(tmp_path)}))
+    weights = tmp_path / "fake.pt"
+    weights.write_bytes(b"not loaded")
+    monkeypatch.setattr(YOLO, "__init__", lambda self, *a, **kw: None)
+    monkeypatch.setattr(experiment, "environment", lambda: {})
+
+    def predict(*args):
+        return [
+            {"category_id": 0, "bbox": [65, 65, 10, 10], "score": 0.99},
+            {"category_id": 0, "bbox": [10, 10, 10, 10], "score": 0.9},
+        ], 1
+
+    monkeypatch.setattr(tiles, "predict", predict)
+    report = experiment.compare(data, weights, device="cpu", output=tmp_path / "output")
+    for mode in report["modes"].values():
+        assert mode["ap"] == pytest.approx(1)
+        assert mode["ap_small"] == pytest.approx(1)
+        assert mode["recall_small"] == pytest.approx(1)
+        assert mode["images"] == 1

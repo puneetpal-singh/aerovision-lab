@@ -37,15 +37,19 @@ def main():
     command = args.pop("command")
     if command == "doctor":
         from .experiment import environment
+
         print(json.dumps(environment(), indent=2))
     elif command == "prepare":
         from .data import prepare
+
         print(prepare(args["root"], args["train"], args["val"], args["seed"]))
     elif command == "train":
         from .experiment import train
+
         train(**args)
     else:
         from .experiment import compare
+
         compare(**args)
 
 

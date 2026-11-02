@@ -1,4 +1,5 @@
 """Explicit tile geometry and class-aware duplicate suppression."""
+
 from __future__ import annotations
 
 
@@ -11,12 +12,25 @@ def starts(length: int, size: int, overlap: float) -> list[int]:
 
 
 def windows(width: int, height: int, size: int, overlap: float) -> list[tuple]:
-    return [(x, y, min(x + size, width), min(y + size, height))
-            for y in starts(height, size, overlap) for x in starts(width, size, overlap)]
+    return [
+        (x, y, min(x + size, width), min(y + size, height))
+        for y in starts(height, size, overlap)
+        for x in starts(width, size, overlap)
+    ]
 
 
-def predict(model, image, mode: str, imgsz: int, tile: int, overlap: float,
-            conf: float, iou: float, device: str, max_det: int = 300):
+def predict(
+    model,
+    image,
+    mode: str,
+    imgsz: int,
+    tile: int,
+    overlap: float,
+    conf: float,
+    iou: float,
+    device: str,
+    max_det: int = 300,
+):
     import torch
     from torchvision.ops import batched_nms
 
@@ -24,8 +38,15 @@ def predict(model, image, mode: str, imgsz: int, tile: int, overlap: float,
     crops = [(0, 0, w, h)] if mode == "whole" else windows(w, h, tile, overlap)
     boxes, scores, classes = [], [], []
     for x0, y0, x1, y1 in crops:
-        result = model.predict(image[y0:y1, x0:x1], imgsz=imgsz, conf=conf, iou=iou,
-                               device=device, max_det=max_det, verbose=False)[0]
+        result = model.predict(
+            image[y0:y1, x0:x1],
+            imgsz=imgsz,
+            conf=conf,
+            iou=iou,
+            device=device,
+            max_det=max_det,
+            verbose=False,
+        )[0]
         b = result.boxes
         if b is None or len(b) == 0:
             continue
@@ -43,8 +64,9 @@ def predict(model, image, mode: str, imgsz: int, tile: int, overlap: float,
     else:
         keep = scores.argsort(descending=True)[:max_det]
     rows = []
-    for box, score, category in zip(boxes[keep].cpu().tolist(), scores[keep].cpu().tolist(),
-                                    classes[keep].cpu().tolist()):
+    for box, score, category in zip(
+        boxes[keep].cpu().tolist(), scores[keep].cpu().tolist(), classes[keep].cpu().tolist()
+    ):
         x0, y0, x1, y1 = box
-        rows.append({"category_id": category, "bbox": [x0, y0, x1-x0, y1-y0], "score": score})
+        rows.append({"category_id": category, "bbox": [x0, y0, x1 - x0, y1 - y0], "score": score})
     return rows, len(crops)

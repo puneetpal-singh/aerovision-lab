@@ -3,6 +3,7 @@
 Source: https://github.com/VisDrone/VisDrone-Dataset
 Archive mirror: Ultralytics assets. No upstream conversion code is executed.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -15,8 +16,18 @@ from pathlib import Path
 import yaml
 from PIL import Image
 
-NAMES = ["pedestrian", "people", "bicycle", "car", "van", "truck", "tricycle",
-         "awning-tricycle", "bus", "motor"]
+NAMES = [
+    "pedestrian",
+    "people",
+    "bicycle",
+    "car",
+    "van",
+    "truck",
+    "tricycle",
+    "awning-tricycle",
+    "bus",
+    "motor",
+]
 MIRROR = "https://github.com/ultralytics/assets/releases/download/v0.0.0"
 
 
@@ -38,7 +49,7 @@ def parse_rows(text: str, width: int, height: int) -> tuple[list, list]:
         if len(row) < 8:
             raise ValueError(f"Expected eight VisDrone fields: {line}")
         x, y, w, h, score, category = row[:6]
-        x0, y0 = max(0., x), max(0., y)
+        x0, y0 = max(0.0, x), max(0.0, y)
         x1, y1 = min(float(width), x + w), min(float(height), y + h)
         if x1 <= x0 or y1 <= y0:
             continue
@@ -56,10 +67,18 @@ def download(split: str, root: Path) -> Path:
     root.mkdir(parents=True, exist_ok=True)
     filename = f"VisDrone2019-DET-{split}.zip"
     dest = root / filename
-    if not dest.exists():
+    if not dest.exists() or not zipfile.is_zipfile(dest):
         part = dest.with_suffix(".zip.part")
         print(f"Downloading {filename}", flush=True)
-        urllib.request.urlretrieve(f"{MIRROR}/{filename}", part)
+        with urllib.request.urlopen(f"{MIRROR}/{filename}", timeout=60) as response, part.open("wb") as f:
+            downloaded = 0
+            for block in iter(lambda: response.read(1024 * 1024), b""):
+                f.write(block)
+                downloaded += len(block)
+                if downloaded % (32 * 1024 * 1024) == 0:
+                    print(f"{filename}: {downloaded // (1024 * 1024)} MiB", flush=True)
+        if not zipfile.is_zipfile(part):
+            raise ValueError(f"Invalid downloaded archive: {part}")
         part.replace(dest)
     with zipfile.ZipFile(dest) as archive:
         # Opening the central directory also rejects incomplete downloads.
@@ -74,8 +93,13 @@ def prepare(root: Path, train_count: int = 800, val_count: int = 200, seed: int 
     if (output / "manifest.json").exists():
         print(f"Existing subset: {output}", flush=True)
         return output / "dataset.yaml"
-    manifest = {"seed": seed, "classes": NAMES, "splits": {}, "archives": {},
-                "protocol": "YOLO targets omit ignore boxes; evaluation ignores crowd regions. Not official VisDrone metrics."}
+    manifest = {
+        "seed": seed,
+        "classes": NAMES,
+        "splits": {},
+        "archives": {},
+        "protocol": "YOLO targets omit ignore boxes; evaluation ignores crowd regions. Not official VisDrone metrics.",
+    }
     for split, count in (("train", train_count), ("val", val_count)):
         archive_path = download(split, root / "archives")
         manifest["archives"][split] = {"name": archive_path.name, "sha256": digest(archive_path)}
@@ -101,24 +125,50 @@ def prepare(root: Path, train_count: int = 800, val_count: int = 200, seed: int 
                 labels = []
                 for target in targets:
                     x, y, w, h = target["bbox"]
-                    labels.append(f"{target['category_id']} {(x+w/2)/width:.8f} {(y+h/2)/height:.8f} {w/width:.8f} {h/height:.8f}")
-                    annotations.append({"id": len(annotations)+1, "image_id": image_id,
-                                        **target, "area": w*h, "iscrowd": 0})
-                (label_dir / Path(filename).with_suffix(".txt")).write_text("\n".join(labels), encoding="utf-8")
-                records.append({"id": image_id, "file_name": filename, "width": width, "height": height,
-                                "sha256": digest(dest)})
+                    labels.append(
+                        f"{target['category_id']} {(x + w / 2) / width:.8f} {(y + h / 2) / height:.8f} {w / width:.8f} {h / height:.8f}"
+                    )
+                    annotations.append(
+                        {
+                            "id": len(annotations) + 1,
+                            "image_id": image_id,
+                            **target,
+                            "area": w * h,
+                            "iscrowd": 0,
+                        }
+                    )
+                (label_dir / Path(filename).with_suffix(".txt")).write_text(
+                    "\n".join(labels), encoding="utf-8"
+                )
+                records.append(
+                    {
+                        "id": image_id,
+                        "file_name": filename,
+                        "width": width,
+                        "height": height,
+                        "sha256": digest(dest),
+                    }
+                )
                 ignored_records.append({"image_id": image_id, "boxes": ignored})
         manifest["splits"][split] = records
-        coco = {"info": {}, "images": records, "annotations": annotations,
-                "categories": [{"id": i, "name": n} for i, n in enumerate(NAMES)]}
+        coco = {
+            "info": {},
+            "images": records,
+            "annotations": annotations,
+            "categories": [{"id": i, "name": n} for i, n in enumerate(NAMES)],
+        }
         (output / f"{split}.coco.json").write_text(json.dumps(coco), encoding="utf-8")
         (output / f"{split}.ignored.json").write_text(json.dumps(ignored_records), encoding="utf-8")
         print(f"Prepared {split}: {len(records)} images, {len(annotations)} target boxes", flush=True)
     train_hashes = {r["sha256"] for r in manifest["splits"]["train"]}
     if any(r["sha256"] in train_hashes for r in manifest["splits"]["val"]):
         raise ValueError("Identical image content exists across train and validation")
-    config = {"path": output.as_posix(), "train": "images/train", "val": "images/val",
-              "names": dict(enumerate(NAMES))}
+    config = {
+        "path": output.as_posix(),
+        "train": "images/train",
+        "val": "images/val",
+        "names": dict(enumerate(NAMES)),
+    }
     path = output / "dataset.yaml"
     path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
