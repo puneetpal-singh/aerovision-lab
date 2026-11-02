@@ -9,12 +9,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 buffer = io.BytesIO()
-files = [ROOT / "pyproject.toml", ROOT / "README.md", *sorted((ROOT / "src/aerovision").glob("*.py"))]
+files = [ROOT / "pyproject.toml", *sorted((ROOT / "src/aerovision").glob("*.py"))]
 with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
     for path in files:
         info = zipfile.ZipInfo(path.relative_to(ROOT).as_posix(), date_time=(1980, 1, 1, 0, 0, 0))
         info.compress_type = zipfile.ZIP_DEFLATED
-        archive.writestr(info, path.read_bytes())
+        # Canonical UTF-8/LF source is identical on Windows and Linux checkouts.
+        archive.writestr(info, path.read_text(encoding="utf-8").encode("utf-8"))
 payload = buffer.getvalue()
 sha = hashlib.sha256(payload).hexdigest()
 encoded = base64.b64encode(payload).decode()
