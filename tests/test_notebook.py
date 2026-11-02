@@ -18,6 +18,7 @@ def test_colab_cells_compile_and_bundle_matches_source(name):
     for index, source in enumerate(cells):
         compile(source, f"cell-{index}", "exec")
     payload = next(c for c in cells if "base64.b64decode(" in c)
+    assert "sys.path.insert(0, str(PROJECT / 'src'))" in payload
     encoded = re.search(r"base64.b64decode\('([^']+)'\)", payload).group(1)
     data = base64.b64decode(encoded)
     sha = hashlib.sha256(data).hexdigest()
