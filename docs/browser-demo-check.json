@@ -15,5 +15,8 @@
     "no POST/image-upload requests",
     "no browser errors"
   ],
-  "scope": "Browser smoke checks; Canvas resampling differs from Python/OpenCV. Not full-set browser accuracy."
+  "scope": "Browser smoke checks; Canvas resampling differs from Python/OpenCV. Not full-set browser accuracy.",
+  "production_url": "https://www.puneetpal.com/demos/aerovision/index.html",
+  "production_verified": true,
+  "production_checked_on": "2026-11-02"
 }

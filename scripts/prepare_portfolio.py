@@ -26,6 +26,7 @@ def main():
     vendor.mkdir(parents=True, exist_ok=True)
     for name in ["ort.wasm.min.js", "ort-wasm-simd-threaded.mjs", "ort-wasm-simd-threaded.wasm"]:
         shutil.copy2(package / "dist" / name, vendor / name)
+    shutil.copy2(root / "web-demo/third-party/ONNX-Runtime-LICENSE.txt", vendor / "LICENSE")
     print("Prepared browser demo:", target)
 
 

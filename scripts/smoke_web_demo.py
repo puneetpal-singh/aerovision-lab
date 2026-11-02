@@ -27,7 +27,7 @@ def main():
         page.screenshot(path=str(args.out / "home.png"), full_page=True)
         page.locator("#image-file").set_input_files(str(args.image.resolve()))
         page.locator("#detect").click()
-        page.wait_for_function("!document.querySelector('#result').hidden", timeout=180000)
+        page.locator("#result").wait_for(state="visible", timeout=180000)
         assert page.locator("#status").inner_text().startswith(("Done.", "No objects"))
         page.screenshot(path=str(args.out / "detections.png"), full_page=True)
         with page.expect_download() as download:
@@ -47,7 +47,7 @@ def main():
         assert page.locator("#confidence").input_value() == "0.3"
         assert page.locator("#result").is_hidden()
         page.locator("#detect").click()
-        page.wait_for_function("!document.querySelector('#result').hidden", timeout=180000)
+        page.locator("#result").wait_for(state="visible", timeout=180000)
         with page.expect_download() as download:
             page.locator("#download-json").click()
         download.value.save_as(str(args.out / "predictions-030.json"))
