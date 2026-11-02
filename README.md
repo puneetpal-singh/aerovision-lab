@@ -71,6 +71,12 @@ from the output/files panel when complete. This notebook does not retrain.
 
 ## CPU development
 
+ONNX export and CPU verification are documented in
+[docs/export-verification.md](docs/export-verification.md). Install optional
+dependencies with `pip install -e '.[export]'`. The verification compares raw
+outputs and final detections on ten hash-checked validation images, plus seeded
+random tensors at additional shapes. It does not run a full accuracy benchmark.
+
 The local environment remains available for source edits and CPU tests. Do not
 run GPU benchmarks or GPU training on this laptop. The tested historical Windows
 environment is recorded in `docs/requirements-local.txt`; Colab retains its
