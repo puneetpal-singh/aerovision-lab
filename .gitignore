@@ -14,3 +14,7 @@ logs/
 *.onnx
 *.engine
 *.zip
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/
