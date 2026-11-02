@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "model": "YOLO11n",
+  "checkpoint_sha256": "9ea4e947efe74f75703ab2c5a32bf5a6af70124945a6ee9bd366c7cd83172840",
+  "onnx_sha256": "663af645fd72248371fda473759aba2fcb1b69f84c3bfca7d36190b30af1918d",
+  "input_size": 1280,
+  "confidence": 0.30,
+  "nms_iou": 0.7,
+  "max_detections": 1000,
+  "stride": 32,
+  "classes": ["pedestrian", "people", "bicycle", "car", "van", "truck", "tricycle", "awning-tricycle", "bus", "motor"],
+  "test_images": 1610,
+  "test_ap": 0.18605414490755742,
+  "test_ap50": 0.3235678608576336,
+  "test_precision_at_030": 0.6988518577579333,
+  "test_recall_at_030": 0.4668317754520519,
+  "score_protocol": "Custom COCO-style scoring with crowd approximation; not official VisDrone challenge scores"
+}

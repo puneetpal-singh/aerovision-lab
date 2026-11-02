@@ -20,3 +20,5 @@ dist/
 .ipynb_checkpoints/
 .state/
 export-work/
+.demo-venv/
+work/

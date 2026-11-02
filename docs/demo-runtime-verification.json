@@ -1,0 +1,139 @@
+{
+  "provider": [
+    "CPUExecutionProvider"
+  ],
+  "onnx_sha256": "663af645fd72248371fda473759aba2fcb1b69f84c3bfca7d36190b30af1918d",
+  "images": [
+    {
+      "file_name": "0000001_02999_d_0000005.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 71,
+        "candidate_count": 71,
+        "matched": 71,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 274.7302999996464
+    },
+    {
+      "file_name": "0000103_03349_d_0000031.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 1,
+        "candidate_count": 1,
+        "matched": 1,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 203.38579999952344
+    },
+    {
+      "file_name": "0000194_00399_d_0000121.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 87,
+        "candidate_count": 87,
+        "matched": 87,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 235.50619999878109
+    },
+    {
+      "file_name": "0000244_03500_d_0000008.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 70,
+        "candidate_count": 70,
+        "matched": 70,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 219.39040000142995
+    },
+    {
+      "file_name": "0000276_02601_d_0000520.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 23,
+        "candidate_count": 23,
+        "matched": 23,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 214.82749999995576
+    },
+    {
+      "file_name": "0000287_00001_d_0000759.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 61,
+        "candidate_count": 61,
+        "matched": 61,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 221.00749999663094
+    },
+    {
+      "file_name": "0000291_01801_d_0000877.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 103,
+        "candidate_count": 103,
+        "matched": 103,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 221.04010000111884
+    },
+    {
+      "file_name": "0000316_01401_d_0000526.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 28,
+        "candidate_count": 28,
+        "matched": 28,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 218.25470000112546
+    },
+    {
+      "file_name": "0000335_03725_d_0000062.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 27,
+        "candidate_count": 27,
+        "matched": 27,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 224.08989999894402
+    },
+    {
+      "file_name": "0000364_01177_d_0000799.jpg",
+      "preprocessing_exact": true,
+      "agreement": {
+        "passed": true,
+        "reference_count": 47,
+        "candidate_count": 47,
+        "matched": 47,
+        "minimum_iou": 1.0,
+        "maximum_score_delta": 0.0
+      },
+      "latency_cpu_ms": 218.2262999995146
+    }
+  ],
+  "passed": true
+}

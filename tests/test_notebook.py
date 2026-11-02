@@ -35,7 +35,7 @@ def test_colab_cells_compile_and_bundle_matches_source(name):
         for member in archive.namelist():
             assert not member.startswith("/") and ".." not in Path(member).parts
             packed = archive.read(member)
-            assert b'\r\n' not in packed
+            assert b"\r\n" not in packed
             assert packed == (root / member).read_text(encoding="utf-8").encode("utf-8")
     for source in cells:
         if "run('train'" in source or "run('compare'" in source:

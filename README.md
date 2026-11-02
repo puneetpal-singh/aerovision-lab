@@ -1,128 +1,104 @@
 # AeroVision Lab
 
-Small-object detection experiments on VisDrone: establish a reproducible baseline, then investigate resolution, tiled inference and deployment.
+A compact aerial-object detector with a reproducible experiment trail and a local CPU demo. Built around YOLO11n, VisDrone, and ONNX Runtime.
 
-This is an independent implementation started from scratch. No training results have been produced yet.
+**Frozen v1:** whole-image inference at 1280, confidence 0.30, class-aware NMS IoU 0.7. On 1,610 held-out test-dev images, increasing inference resolution from 640 to 1280 improved AP from **13.69% to 18.61%** and small-object AP from **4.86% to 11.30%**, using the same trained checkpoint.
 
-## Stage 1: reproduce the task
+![AeroVision Lab interface](docs/assets/demo-home.png)
 
-1. Validate the environment and GPU with a short smoke run.
-2. Prepare VisDrone with explicit class mapping, split manifests and annotation checks.
-3. Train a YOLO11s baseline at 640 pixels. Save resolved settings, dependency versions, seed, hardware and checkpoint hashes.
-4. Evaluate on validation data; reserve test-dev for final evaluation after selecting the experiment protocol.
-5. Compare 640, 960 and 1280 input resolutions with a controlled training setup. Choose a batch size that fits all compared runs and record any deviation.
+## Try the demo
 
-The first goal is to reproduce the task and establish our own measurements. Matching another implementation's exact numbers is not assumed.
+The demo uses **CPU only** and has no PyTorch or CUDA dependency. It accepts a JPG/PNG, draws detections, exposes the confidence threshold, and downloads the annotated image or prediction JSON. Uploads are kept in the local session rather than written to disk.
 
-## Stage 2: improve
+Use Python 3.12. For a lightweight environment:
 
-- Compare whole-image and overlapping tiled inference using consistent scoring and explicit suppression settings.
-- Investigate errors near tile boundaries, overlap and duplicate merging.
-- Report small-object recall, per-class AP, false positives, memory and latency alongside overall mAP.
-- Verify exported model predictions and evaluate deployment performance.
+```powershell
+py -3.12 -m venv .demo-venv
+.\.demo-venv\Scripts\python.exe -m pip install -r requirements-demo.txt
+python scripts/fetch_model.py
+.\.demo-venv\Scripts\python.exe -m streamlit run demo.py
+```
 
-Every improvement must be compared with a saved baseline on the same data and documented protocol.
+The model fetch uses an authenticated GitHub CLI (`gh auth login`) because this repository is private. It downloads the verified release artifact and checks its SHA-256. Alternatively, extract `aerovision-full-fp32.onnx` from the [model release](https://github.com/puneetpal-singh/aerovision-lab/releases/tag/onnx-fp32-v0.1) into `models/`.
 
-## Train on free Google Colab
+The demo release bundle already includes the model. On Windows, its `Start-Demo.cmd` creates the lightweight environment and starts the app. The app binds to `127.0.0.1`; it is not a hosted public service.
 
-The laptop shuts down under GPU load, so training has moved to a hosted GPU.
-The old local GPU runner is retired; CLI train/compare now default to CPU.
+CPU timings shown in the app are measurements of the current request. They are separate from the recorded T4 benchmark below.
 
-1. Download [AeroVision_Colab.ipynb](notebooks/AeroVision_Colab.ipynb).
-2. Open https://colab.research.google.com/ and choose **File > Upload notebook**.
-3. Choose **Runtime > Change runtime type > GPU** and use a hosted runtime.
-4. Run the cells in order and approve Google Drive access when prompted.
+## Results
 
-This notebook embeds a verified source snapshot, so no GitHub token is required.
-Keep it private. Dataset images stay on Colab scratch storage; run artifacts and
-checkpoints save under `My Drive/AeroVisionLab/runs/` each epoch. Rerunning the
-notebook rebuilds the same subset and resumes an unfinished saved checkpoint.
-It also saves the exact source bundle in Drive. Free GPU access and runtime
-lifetimes vary; this notebook has not yet been executed in your Colab account.
+All rows below use one frozen checkpoint, the same image set within each table, confidence 0.001 for AP integration, NMS IoU 0.7 and a prediction/evaluator limit of 1000. AP means mean AP across IoU 0.50:0.95. Small-object definitions follow COCO area bins in original image coordinates.
 
-The pilot uses YOLO11n, 800 train / 200 validation images, 640 pixels, batch 2
-and 20 epochs. It starts from COCO-pretrained weights. The earlier local smoke
-completed; the local pilot was interrupted before recording a completed epoch.
+### Inference comparison: all 548 validation images
 
-## Evaluate the saved pilot without retraining
+| Configuration | AP | Small-object AP | Small-object average recall | T4 median latency |
+|---|---:|---:|---:|---:|
+| Whole image 640 | 16.26% | 7.75% | 13.91% | 12.5 ms |
+| Whole image 960 | 20.99% | 13.01% | 23.00% | 13.8 ms |
+| Whole image 1280 | **21.73%** | **15.22%** | 28.02% | 16.4 ms |
+| Tiled 640, overlap 0.20 | 20.47% | 14.47% | **28.92%** | 66.1 ms |
 
-Upload [AeroVision_Evaluation.ipynb](notebooks/AeroVision_Evaluation.ipynb) to Colab
-and select a hosted GPU. Mount the same Drive used by the pilot. This notebook
-checks the checkpoint SHA-256 and the exact original image membership/content,
-then compares prediction limits 300, 600 and 1000 with the evaluator limit fixed
-at 1000. Detector output and global merge limits vary together; their individual
-effects are not isolated. The 300 control is rescored under this new evaluator
-limit, so compare within the new table. All results remain validation diagnostics.
+![Accuracy and latency comparison](docs/assets/accuracy-latency.png)
 
-Live subprocess output is streamed to the notebook. Fixed-confidence visual error
-examples and aggregate greedy-match counts are separate from COCO AP metrics.
-The final `colab-pilot-v1-evaluation-v2.zip` saves to Drive and downloads for review.
+Whole-image 1280 outperformed the tested tiling configuration in AP and latency. Tiling retained slightly higher small-object average recall. This result applies to this checkpoint, data and tiling setup; it does not establish that tiling is generally ineffective.
 
-## Kaggle saved-model resolution experiment
+### Frozen held-out evaluation: all 1,610 test-dev images
 
-Import `notebooks/AeroVision_Kaggle.ipynb` into a private Kaggle notebook. Upload
-`colab-full-v1-60epochs-b16-results.zip` as a **private** Kaggle Dataset and attach
-it as input. Enable Internet and an available GPU accelerator, then run the cells
-in order. No Google Drive mount or GitHub token is required. The notebook checks
-the checkpoint and original validation image hashes, downloads validation only,
-and compares whole-image inference at 640/960/1280 with tiled inference at 640.
-Only one GPU is used. Download `/kaggle/working/aerovision-resolution-results.zip`
-from the output/files panel when complete. This notebook does not retrain.
+| Metric | Whole 640 baseline | Whole 1280 candidate |
+|---|---:|---:|
+| AP | 13.69% | **18.61%** |
+| AP50 | 24.02% | **32.36%** |
+| Small-object AP | 4.86% | **11.30%** |
+| Precision at confidence 0.30 | 69.93% | 69.89% |
+| Recall at confidence 0.30 | 33.21% | **46.68%** |
+| Micro F1 at confidence 0.30 | 45.03% | **55.98%** |
+| Median latency | **12.3 ms** | 17.1 ms |
 
-## Frozen test-dev evaluation
+Latency was measured with batch-one PyTorch inference on a T4, with warmup and synchronization. It includes preprocessing, inference, merging and transfer, but excludes image-file decoding. These measurements are not complete application throughput or ONNX CPU benchmarks.
 
-Import `notebooks/AeroVision_TestDev.ipynb` into a private Kaggle notebook and
-attach the same full-data results Dataset. Enable Internet, a hosted T4 GPU and
-Files-only persistence. The notebook evaluates the frozen PyTorch model at 1280
-and the predeclared 640 baseline on all 1610 test-dev images. It uses confidence
-0.001 for AP integration and the fixed validation-selected 0.30 operating point.
-It does not search thresholds or retrain. Exact image hashes are checked against
-training/validation. Results use the existing custom COCO-style protocol, not
-the official VisDrone challenge evaluator. Download `aerovision-testdev-results.zip`;
-predictions and annotations are included for subsequent CPU review.
+## What was investigated
 
-## CPU development
+- **Reproducible data preparation:** seeded subsets, original class mapping, box clipping, image verification, archive/image hashes and exact-duplicate checks across splits.
+- **Small-GPU pilots:** 800-image runs established the workflow before full-data training. Changing both batch size and training duration in the second pilot prevents attributing its gain to either factor alone.
+- **Full-data baseline:** YOLO11n fine-tuned from COCO weights on 6,471 images for 60 epochs at 640, batch 16, seed 42. Training took about 2 h 44 min on a hosted T4.
+- **Tiling and prediction limits:** explicit crop geometry, coordinate mapping and class-aware merging; caps of 300/600/1000 yielded only modest AP changes for the first pilot.
+- **Inference resolution:** tested the saved full-data model at 640/960/1280 before committing to another training run.
+- **Operating point:** confidence was selected on validation, then fixed for test-dev. Values around 0.25–0.30 had similar aggregate F1; 0.30 favoured precision.
+- **Export and deployment:** FP32 ONNX export, numerical checks, independent NumPy postprocessing and a CPU image-upload app.
 
-ONNX export and CPU verification are documented in
-[docs/export-verification.md](docs/export-verification.md). Install optional
-dependencies with `pip install -e '.[export]'`. The verification compares raw
-outputs and final detections on ten hash-checked validation images, plus seeded
-random tensors at additional shapes. It does not run a full accuracy benchmark.
+## Reproduce or inspect
 
-The local environment remains available for source edits and CPU tests. Do not
-run GPU benchmarks or GPU training on this laptop. The tested historical Windows
-environment is recorded in `docs/requirements-local.txt`; Colab retains its
-preinstalled PyTorch and records the versions actually used in its run metadata.
+| Purpose | Entry point |
+|---|---|
+| Small hosted pilot | `notebooks/AeroVision_Colab.ipynb` |
+| Pilot detection-limit study | `notebooks/AeroVision_Evaluation.ipynb` |
+| Saved-model resolution comparison | `notebooks/AeroVision_Kaggle.ipynb` |
+| Frozen held-out evaluation | `notebooks/AeroVision_TestDev.ipynb` |
+| Training/data/evaluation CLI | `python -m aerovision.cli --help` |
+| Local CPU demo | `python -m streamlit run demo.py` |
+| Export verification | `scripts/verify_saved_export.py` |
+| Browser demo smoke check | `scripts/smoke_demo.py --image <local-image.jpg>` |
 
-## Measurement protocol
+For development, install the appropriate CPU or hosted-CUDA PyTorch build first, then `pip install -e '.[dev,demo,export]'`. Run `pytest` and `ruff check src tests --select E9,F63,F7,F82`. All local GPU training was retired; CLI inference/training defaults to CPU. Training was performed on hosted GPUs.
 
-- The seed-42 subset samples official train and validation independently, retains
-  all ten target classes, and checks for identical image content across splits.
-  This does not establish independence of visually similar scenes.
-- Original archives and selected images have SHA-256 hashes in the local manifest.
-- Ignored and other-object boxes are omitted from YOLO training targets. This is
-  a limitation of this basic training conversion: they can be treated as background.
-- Comparison uses pycocotools on the same images with maxDets=300, confidence
-  0.001 and NMS IoU 0.7. Ignored regions are represented as per-class crowd boxes.
-  This is a documented approximation, not the official VisDrone evaluator.
-- Whole-image and tiled prediction use identical network input resolution and
-  tile-local NMS settings. Tiled prediction adds global class-aware NMS. At overlap
-  0.2, a 640-pixel tile advances about 512 pixels.
-- Latency includes preprocessing, GPU inference, merging and result transfer, but
-  excludes image-file decoding. GPU work is synchronized and each mode warmed up.
-  Sequential tile inference favours low memory consumption over peak throughput.
-- AP, AP50, small-object AP/recall, per-class AP and median/95th-percentile latency
-  are written with predictions, weights hash, subset hash and versions.
-- These are exploratory validation results; no test-dev has been downloaded or used.
+CI is test-only: CPU tests and lint on relevant code changes to `main` and pull requests. It does not train models, deploy the app, or run for documentation-only pushes and release tags. Notebook source bundles use canonical UTF-8/LF text across Windows/Linux.
 
-Runs save checkpoints every epoch. To recover an interrupted run, restore its run
-directory and use `train --data <yaml> --name <name> --resume <path/to/last.pt>`.
-New runs reject an existing run directory to avoid silently overwriting results.
+The held-out notebook is a record of the frozen experiment. Do not retune on test-dev and continue describing it as untouched. Further development must disclose that these results have been inspected.
 
-## Sources and scope
+## Limitations and interpretation
 
-Independent implementation; uses the YOLO11 model and training engine from
-[Ultralytics](https://docs.ultralytics.com/) and the dataset from the
-[VisDrone team](https://github.com/VisDrone/VisDrone-Dataset). Source archives are
-downloaded from the Ultralytics assets mirror. No dataset or weights are committed.
-Upstream software and dataset terms apply to their respective components.
+- Scores use **custom COCO-style evaluation with a crowd approximation for ignored regions**, not the official VisDrone challenge evaluator.
+- Ignored/other-object regions are omitted from training targets and can be treated as background by the basic training pipeline.
+- Accuracy remains uneven. At confidence 0.30 on test-dev, car recall was 77.4%, pedestrian recall 28.8%, and bicycle recall 4.2%. The demo is a research/portfolio prototype.
+- One training seed was evaluated. Statistical confidence intervals and repeat-training variation are not quantified.
+- Exact image hashes do not rule out related scenes or near-duplicates.
+- ONNX export and demo postprocessing were checked on ten fixed validation images, including 518 detections, plus additional synthetic export shapes. Full test-dev accuracy was measured with PyTorch, not this demo.
+- The model was trained on aerial imagery; performance on ground-level, industrial or unfamiliar images has not been established.
+
+Details: [model card](docs/model-card.md), [case study](docs/portfolio-case-study.md), [held-out review](docs/testdev-review.md), [confidence review](docs/confidence-review.md), [export verification](docs/export-verification.md), [demo runtime check](docs/demo-runtime-verification.json).
+
+## Source attribution
+
+The experiment pipeline, data conversion, tiling logic, diagnostics, packaging and NumPy/ONNX demo runtime were implemented for this project. The neural network architecture, pretrained weights and training engine come from [Ultralytics YOLO](https://github.com/ultralytics/ultralytics). The dataset comes from the [VisDrone team](https://github.com/VisDrone/VisDrone-Dataset), via its Ultralytics assets mirror. Inference uses [ONNX Runtime](https://onnxruntime.ai/) and the local UI uses [Streamlit](https://streamlit.io/).
+
+Dataset images and model binaries are not committed to Git. Model artifacts live in private releases. Upstream software, model and dataset terms apply to their respective components.
