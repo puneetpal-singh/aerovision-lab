@@ -78,7 +78,13 @@ subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '-e', '.'], check=
 # Save the source that produced the run alongside its outputs.
 (PERSIST / 'source-{sha[:12]}.zip').write_bytes(bundle)
 def run(*args):
-    subprocess.run([sys.executable, '-u', '-m', 'aerovision.cli', *map(str, args)], check=True)
+    command = [sys.executable, '-u', '-m', 'aerovision.cli', *map(str, args)]
+    with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                          text=True, bufsize=1) as process:
+        for line in process.stdout:
+            print(line, end='', flush=True)
+        if process.wait():
+            raise subprocess.CalledProcessError(process.returncode, command)
 run('doctor')
 """,
 )

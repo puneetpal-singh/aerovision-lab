@@ -113,6 +113,8 @@ def compare(
     device: str = "0",
     limit: int = 0,
     output: Path = Path("runs/comparison"),
+    max_det: int = 300,
+    eval_max_det: int | None = None,
 ) -> dict:
     import copy
     import cv2
@@ -123,6 +125,10 @@ def compare(
     from ultralytics import YOLO
     from .data import digest
     from .tiles import predict
+
+    eval_max_det = eval_max_det or max_det
+    if max_det < 10 or eval_max_det < max_det:
+        raise ValueError("Require max_det >= 10 and eval_max_det >= max_det")
 
     spec = yaml.safe_load(data.read_text(encoding="utf-8"))
     root = Path(spec["path"])
@@ -159,8 +165,17 @@ def compare(
         "environment": environment(),
         "weights_sha256": digest(weights),
         "manifest_sha256": digest(root / "manifest.json"),
-        "protocol": "COCO-style AP, maxDets=300, crowd approximation for ignored regions; not official VisDrone scoring",
-        "settings": dict(imgsz=imgsz, tile=tile, overlap=overlap, conf=0.001, iou=0.7, device=device),
+        "protocol": "COCO-style AP, crowd approximation for ignored regions; not official VisDrone scoring",
+        "settings": dict(
+            imgsz=imgsz,
+            tile=tile,
+            overlap=overlap,
+            conf=0.001,
+            iou=0.7,
+            device=device,
+            max_det=max_det,
+            eval_max_det=eval_max_det,
+        ),
         "image_ids": sorted(ids),
         "modes": {},
     }
@@ -170,7 +185,8 @@ def compare(
         first = cv2.imread(str(root / "images/val" / images[0]["file_name"]))
         if first is None:
             raise FileNotFoundError(images[0]["file_name"])
-        predict(model, first, mode, imgsz, tile, overlap, 0.001, 0.7, device)
+        predict(model, first, mode, imgsz, tile, overlap, 0.001, 0.7, device, max_det=max_det)
+        capped_images = 0
         for record in images:
             image = cv2.imread(str(root / "images/val" / record["file_name"]))
             if image is None:
@@ -178,12 +194,17 @@ def compare(
             if torch.cuda.is_available() and device != "cpu":
                 torch.cuda.synchronize()
             start = time.perf_counter()
-            predictions, n = predict(model, image, mode, imgsz, tile, overlap, 0.001, 0.7, device)
+            predictions, n = predict(
+                model, image, mode, imgsz, tile, overlap, 0.001, 0.7, device, max_det=max_det
+            )
             if torch.cuda.is_available() and device != "cpu":
                 torch.cuda.synchronize()
             timings.append((time.perf_counter() - start) * 1000)
             counts.append(n)
+            capped_images += len(predictions) >= max_det
             rows.extend(dict(image_id=record["id"], **p) for p in predictions)
+            if len(counts) % 25 == 0:
+                print(f"{mode}: {len(counts)}/{len(images)} images, cap={max_det}", flush=True)
         (output / f"{mode}.predictions.json").write_text(json.dumps(rows), encoding="utf-8")
         if rows:
             detections = gt.loadRes(rows)
@@ -193,7 +214,7 @@ def compare(
             detections.createIndex()
         evaluator = COCOeval(gt, detections, "bbox")
         evaluator.params.imgIds = sorted(ids)
-        evaluator.params.maxDets = [1, 10, 300]
+        evaluator.params.maxDets = [1, 10, eval_max_det]
         evaluator.evaluate()
         evaluator.accumulate()
         # The standard summary hardcodes maxDets=100 for AP; report our explicit
@@ -217,6 +238,7 @@ def compare(
             mean_tiles=float(np.mean(counts)),
             detections=len(rows),
             images=len(images),
+            images_at_prediction_cap=capped_images,
         )
         (output / "comparison.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(json.dumps(report["modes"][mode], indent=2), flush=True)

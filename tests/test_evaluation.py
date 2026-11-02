@@ -9,7 +9,8 @@ from PIL import Image
 
 
 @pytest.mark.parametrize("has_predictions,expected", [(True, 1), (False, 0)])
-def test_known_predictions_and_ignored_regions(tmp_path, monkeypatch, has_predictions, expected):
+@pytest.mark.parametrize("max_det", [300, 600])
+def test_known_predictions_and_ignored_regions(tmp_path, monkeypatch, has_predictions, expected, max_det):
     from aerovision import experiment, tiles
     from ultralytics import YOLO
 
@@ -34,7 +35,7 @@ def test_known_predictions_and_ignored_regions(tmp_path, monkeypatch, has_predic
     monkeypatch.setattr(YOLO, "__init__", lambda self, *a, **kw: None)
     monkeypatch.setattr(experiment, "environment", lambda: {})
 
-    def predict(*args):
+    def predict(*args, **kwargs):
         if not has_predictions:
             return [], 1
         return [
@@ -43,7 +44,11 @@ def test_known_predictions_and_ignored_regions(tmp_path, monkeypatch, has_predic
         ], 1
 
     monkeypatch.setattr(tiles, "predict", predict)
-    report = experiment.compare(data, weights, device="cpu", output=tmp_path / "output")
+    report = experiment.compare(
+        data, weights, device="cpu", output=tmp_path / "output", max_det=max_det, eval_max_det=1000
+    )
+    assert report["settings"]["max_det"] == max_det
+    assert report["settings"]["eval_max_det"] == 1000
     for mode in report["modes"].values():
         assert mode["ap"] == pytest.approx(expected)
         assert mode["ap_small"] == pytest.approx(expected)

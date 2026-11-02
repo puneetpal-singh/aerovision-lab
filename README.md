@@ -44,6 +44,20 @@ The pilot uses YOLO11n, 800 train / 200 validation images, 640 pixels, batch 2
 and 20 epochs. It starts from COCO-pretrained weights. The earlier local smoke
 completed; the local pilot was interrupted before recording a completed epoch.
 
+## Evaluate the saved pilot without retraining
+
+Upload [AeroVision_Evaluation.ipynb](notebooks/AeroVision_Evaluation.ipynb) to Colab
+and select a hosted GPU. Mount the same Drive used by the pilot. This notebook
+checks the checkpoint SHA-256 and the exact original image membership/content,
+then compares prediction limits 300, 600 and 1000 with the evaluator limit fixed
+at 1000. Detector output and global merge limits vary together; their individual
+effects are not isolated. The 300 control is rescored under this new evaluator
+limit, so compare within the new table. All results remain validation diagnostics.
+
+Live subprocess output is streamed to the notebook. Fixed-confidence visual error
+examples and aggregate greedy-match counts are separate from COCO AP metrics.
+The final `colab-pilot-v1-evaluation-v2.zip` saves to Drive and downloads for review.
+
 ## CPU development
 
 The local environment remains available for source edits and CPU tests. Do not

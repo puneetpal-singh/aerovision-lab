@@ -7,11 +7,13 @@ import json
 import re
 import zipfile
 from pathlib import Path
+import pytest
 
 
-def test_colab_cells_compile_and_bundle_matches_source():
+@pytest.mark.parametrize("name", ["AeroVision_Colab.ipynb", "AeroVision_Evaluation.ipynb"])
+def test_colab_cells_compile_and_bundle_matches_source(name):
     root = Path(__file__).resolve().parent.parent
-    notebook = json.loads((root / "notebooks/AeroVision_Colab.ipynb").read_text(encoding="utf-8"))
+    notebook = json.loads((root / "notebooks" / name).read_text(encoding="utf-8"))
     cells = ["".join(c["source"]) for c in notebook["cells"] if c["cell_type"] == "code"]
     for index, source in enumerate(cells):
         compile(source, f"cell-{index}", "exec")

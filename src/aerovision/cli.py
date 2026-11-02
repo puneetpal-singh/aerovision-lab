@@ -35,6 +35,8 @@ def main():
     ev.add_argument("--device", default="cpu")
     ev.add_argument("--limit", type=int, default=0)
     ev.add_argument("--output", type=Path, default=Path("runs/comparison"))
+    ev.add_argument("--max-det", type=int, default=300)
+    ev.add_argument("--eval-max-det", type=int, default=None)
     args = vars(parser.parse_args())
     command = args.pop("command")
     if command == "doctor":
