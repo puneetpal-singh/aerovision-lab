@@ -6,9 +6,11 @@ A compact aerial-object detector with a reproducible experiment trail and a loca
 
 ![AeroVision Lab interface](docs/assets/demo-home.png)
 
+**[Open the live browser demo](https://www.puneetpal.com/demos/aerovision/index.html)** · [Portfolio project](https://www.puneetpal.com/projects?project=16)
+
 ## Try the demo
 
-The demo uses **CPU only** and has no PyTorch or CUDA dependency. It accepts a JPG/PNG, draws detections, exposes the confidence threshold, and downloads the annotated image or prediction JSON. Uploads are kept in the local session rather than written to disk.
+The demo uses **CPU only** and has no PyTorch or CUDA dependency. It explicitly asks for an aerial/drone JPG/PNG, defaults to confidence **0.55**, draws detections, exposes the confidence threshold, and downloads the annotated image or prediction JSON. Uploads are kept in the local session rather than written to disk.
 
 Use Python 3.12. For a lightweight environment:
 
@@ -19,9 +21,11 @@ python scripts/fetch_model.py
 .\.demo-venv\Scripts\python.exe -m streamlit run demo.py
 ```
 
-The model fetch uses an authenticated GitHub CLI (`gh auth login`) because this repository is private. It downloads the verified release artifact and checks its SHA-256. Alternatively, extract `aerovision-full-fp32.onnx` from the [model release](https://github.com/puneetpal-singh/aerovision-lab/releases/tag/onnx-fp32-v0.1) into `models/`.
+The model fetch uses GitHub CLI (`gh`); run `gh auth login` if GitHub requests authentication. It downloads the verified release artifact and checks its SHA-256. Alternatively, extract `aerovision-full-fp32.onnx` from the [model release](https://github.com/puneetpal-singh/aerovision-lab/releases/tag/onnx-fp32-v0.1) into `models/`.
 
 The demo release bundle already includes the model. On Windows, its `Start-Demo.cmd` creates the lightweight environment and starts the app. The app binds to `127.0.0.1`; it is not a hosted public service.
+
+The demo default of 0.55 is for interactive viewing; recorded evaluation metrics still use the validation-selected 0.30 operating point.
 
 CPU timings shown in the app are measurements of the current request. They are separate from the recorded T4 benchmark below.
 
@@ -63,7 +67,7 @@ Latency was measured with batch-one PyTorch inference on a T4, with warmup and s
 - **Full-data baseline:** YOLO11n fine-tuned from COCO weights on 6,471 images for 60 epochs at 640, batch 16, seed 42. Training took about 2 h 44 min on a hosted T4.
 - **Tiling and prediction limits:** explicit crop geometry, coordinate mapping and class-aware merging; caps of 300/600/1000 yielded only modest AP changes for the first pilot.
 - **Inference resolution:** tested the saved full-data model at 640/960/1280 before committing to another training run.
-- **Operating point:** confidence was selected on validation, then fixed for test-dev. Values around 0.25–0.30 had similar aggregate F1; 0.30 favoured precision.
+- **Operating point:** confidence was selected on validation, then fixed for test-dev. Values around 0.25â€“0.30 had similar aggregate F1; 0.30 favoured precision.
 - **Export and deployment:** FP32 ONNX export, numerical checks, independent NumPy postprocessing and a CPU image-upload app.
 
 ## Reproduce or inspect
@@ -101,4 +105,10 @@ Details: [model card](docs/model-card.md), [case study](docs/portfolio-case-stud
 
 The experiment pipeline, data conversion, tiling logic, diagnostics, packaging and NumPy/ONNX demo runtime were implemented for this project. The neural network architecture, pretrained weights and training engine come from [Ultralytics YOLO](https://github.com/ultralytics/ultralytics). The dataset comes from the [VisDrone team](https://github.com/VisDrone/VisDrone-Dataset), via its Ultralytics assets mirror. Inference uses [ONNX Runtime](https://onnxruntime.ai/) and the local UI uses [Streamlit](https://streamlit.io/).
 
-Dataset images and model binaries are not committed to Git. Model artifacts live in private releases. Upstream software, model and dataset terms apply to their respective components.
+Dataset images and model binaries are not committed to Git. Model artifacts live in GitHub releases. Upstream software, model and dataset terms apply to their respective components.
+
+## Browser deployment
+
+`web-demo/` contains the public static demo. It uses a dedicated CPU WebAssembly worker, client-side image processing, confidence 0.55 by default, class-aware NMS and image/JSON downloads. The original frozen metrics remain unchanged. To prepare a portfolio checkout, install `onnxruntime-web@1.22.0` there, install the verified local model here, then run `python scripts/prepare_portfolio.py <portfolio-checkout>`. Serve its public directory or deploy the portfolio. The browser uses Canvas resampling; full-set browser accuracy has not been measured. See the model card for the scope of export verification.
+
+Source/model distribution: AGPL-3.0. ONNX Runtime Web: MIT, retained alongside its vendored assets.

@@ -1,0 +1,19 @@
+{
+  "runtime": "ONNX Runtime Web 1.22.0 / WASM CPU",
+  "model_sha256": "663af645fd72248371fda473759aba2fcb1b69f84c3bfca7d36190b30af1918d",
+  "sample": "0000001_02999_d_0000005.jpg",
+  "detections_at_055": 18,
+  "detections_at_030": 69,
+  "checks": [
+    "model SHA-256 before inference",
+    "real image inference in dedicated CPU worker",
+    "annotated PNG download",
+    "prediction JSON download",
+    "confidence rerun",
+    "390px mobile no horizontal overflow",
+    "invalid-image handling",
+    "no POST/image-upload requests",
+    "no browser errors"
+  ],
+  "scope": "Browser smoke checks; Canvas resampling differs from Python/OpenCV. Not full-set browser accuracy."
+}

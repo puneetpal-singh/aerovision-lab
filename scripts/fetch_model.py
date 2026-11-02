@@ -1,4 +1,4 @@
-"""Download the verified model from this private GitHub repository's release."""
+"""Download the verified model from this GitHub repository's release."""
 
 import hashlib
 import json

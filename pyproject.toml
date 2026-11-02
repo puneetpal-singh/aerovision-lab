@@ -4,8 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aerovision-lab"
-version = "1.0.0"
-description = "Small GPU experiments for aerial small-object detection"
+version = "1.1.0"
+description = "Reproducible aerial object detection and CPU/browser deployment"
+license = {text = "AGPL-3.0-only"}
 requires-python = ">=3.11"
 dependencies = ["ultralytics==8.3.228", "numpy>=1.26,<3", "Pillow>=10", "PyYAML>=6", "pycocotools>=2.0.8"]
 

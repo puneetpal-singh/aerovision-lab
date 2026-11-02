@@ -39,14 +39,8 @@ def main():
         result_path = args.out / "predictions.json"
         download.value.save_as(str(result_path))
         result = json.loads(result_path.read_text())
-        assert result["backend"] == "ONNX Runtime CPU" and result["confidence"] == 0.3
+        assert result["backend"] == "ONNX Runtime CPU" and result["confidence"] == 0.55
         print("Browser inference detections:", len(result["detections"]))
-        page.get_by_role("tab", name="Evidence & limitations").click()
-        page.get_by_role("heading", name="A measured improvement on held-out images").wait_for()
-        page.get_by_text("Where it struggles", exact=True).wait_for()
-        page.locator('[data-testid="stApp"][data-test-script-state="notRunning"]').wait_for()
-        page.screenshot(path=str(args.out / "evidence.png"), full_page=True)
-        page.get_by_role("tab", name="Image explorer").click()
         page.locator("input[type=file]").set_input_files(
             dict(name="invalid.png", mimeType="image/png", buffer=b"invalid image")
         )

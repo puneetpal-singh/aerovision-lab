@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore aerial object detection with AeroVision Lab. Upload a drone image and detect vehicles and pedestrians directly in your browser.">
+  <title>AeroVision Lab · Puneetpal Singh</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <nav aria-label="Demo navigation"><a href="/projects?project=16">← Puneetpal Singh / Projects</a><a href="https://github.com/puneetpal-singh/aerovision-lab" target="_blank" rel="noopener noreferrer">View source ↗</a></nav>
+    <header><p class="eyebrow">COMPUTER VISION / AERIAL DETECTION</p><h1>A new perspective.</h1><p class="intro">See what <strong>AeroVision Lab</strong> finds from above. Upload an aerial or drone image of roads, traffic, or parking areas.</p></header>
+    <main class="workspace">
+      <section class="controls" aria-label="Detection controls">
+        <span class="step">01 / YOUR IMAGE</span>
+        <h2>Start from above.</h2>
+        <label class="upload" id="drop-zone" for="image-file"><span class="upload-icon" aria-hidden="true">↥</span><strong>Upload an aerial or drone image</strong><span>Choose a file or drop it here</span><small>JPG or PNG · up to 10 MB</small><input id="image-file" type="file" accept="image/jpeg,image/png"></label>
+        <p id="filename" class="filename"></p>
+        <div class="slider-label"><label for="confidence">Confidence threshold</label><output id="confidence-value" for="confidence">0.55</output></div>
+        <input id="confidence" type="range" min="0.05" max="0.90" step="0.01" value="0.55">
+        <label class="check"><input id="labels" type="checkbox" checked> Show labels</label>
+        <button id="detect" class="primary" disabled>Detect objects <span aria-hidden="true">↗</span></button>
+        <p id="status" class="status" role="status" aria-live="polite">Add an aerial image to begin.</p>
+        <div class="model"><span class="dot"></span><strong>YOLO11n / AeroVision v1</strong><p>10 classes · runs in your browser<br>Your image stays on your device.</p></div>
+      </section>
+      <section class="viewer" aria-label="Image and detections">
+        <div class="viewer-bar"><span>02 / IMAGE EXPLORER</span><span id="image-size">AERIAL INPUT</span></div>
+        <div id="empty" class="empty"><div class="aerial-art" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b></div><h2>Aerial images go here.</h2><p>Try a drone view of a road, intersection, or parking lot.<br>Clear daytime images are a good place to start.</p></div>
+        <canvas id="preview" hidden aria-label="Uploaded aerial image with model detections"></canvas>
+        <div id="result" class="result" hidden>
+          <div class="metrics"><div><span>Detections</span><strong id="count">0</strong></div><div><span>Classes found</span><strong id="classes">0</strong></div><div><span>Browser inference</span><strong id="latency">—</strong></div></div>
+          <div id="class-counts" class="class-counts"></div>
+          <div class="downloads"><button id="download-image">Download image ↓</button><button id="download-json">Download predictions ↓</button></div>
+        </div>
+      </section>
+    </main>
+    <section class="categories"><span class="step">WHAT IT LOOKS FOR</span><p>Cars, vans, trucks, buses, motorbikes, bicycles, tricycles, covered tricycles, pedestrians, and people.</p></section>
+    <footer><span>AeroVision Lab · built by Puneetpal Singh</span><span>YOLO11n × ONNX Runtime Web</span></footer>
+  </div>
+</body>
+</html>

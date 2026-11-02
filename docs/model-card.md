@@ -33,3 +33,9 @@ The demo uses ONNX Runtime CPU with two inference threads. It requires no GPU. A
 ## Version policy
 
 This checkpoint and its recorded test result are frozen v1. Further tuning after inspecting test-dev requires a new development version and disclosure that this split is no longer an untouched evaluation set for that development.
+
+## Public browser demo (v1.1 UI)
+
+The portfolio demo uses ONNX Runtime Web 1.22.0, WebAssembly CPU in a dedicated worker, a SHA-256-verified model, and confidence 0.55 by default. It does not use WebGPU and sends no image bytes to an inference server. UI confidence changes do not alter the frozen model or the recorded 0.30 diagnostic metrics.
+
+Browser image decoding and Canvas resampling differ from the Python/OpenCV input path; the ten-image Python parity results above do not assert bit-exact browser preprocessing or full-set browser accuracy. Browser output smoke checks are documented separately. The project source/model distribution uses AGPL-3.0; ONNX Runtime assets retain their MIT license.
