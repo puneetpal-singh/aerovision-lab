@@ -1,0 +1,55 @@
+{
+  "manifest_sha256": "6c43e30788ecda9e5cace3374015c0499688ae236218f6b10d82a3240827220b",
+  "splits": {
+    "train": {
+      "images": 800,
+      "target_boxes": 44793,
+      "ignored_boxes": 1279,
+      "boxes_per_class": {
+        "pedestrian": 10048,
+        "people": 3535,
+        "bicycle": 1440,
+        "car": 19160,
+        "van": 3141,
+        "truck": 1679,
+        "tricycle": 660,
+        "awning-tricycle": 413,
+        "bus": 631,
+        "motor": 4086
+      },
+      "width_range": [
+        960,
+        2000
+      ],
+      "height_range": [
+        540,
+        1500
+      ]
+    },
+    "val": {
+      "images": 200,
+      "target_boxes": 13492,
+      "ignored_boxes": 487,
+      "boxes_per_class": {
+        "pedestrian": 3128,
+        "people": 1837,
+        "bicycle": 438,
+        "car": 4735,
+        "van": 715,
+        "truck": 292,
+        "tricycle": 346,
+        "awning-tricycle": 197,
+        "bus": 86,
+        "motor": 1718
+      },
+      "width_range": [
+        960,
+        1920
+      ],
+      "height_range": [
+        540,
+        1080
+      ]
+    }
+  }
+}

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 
 def main():
+    os.environ.setdefault("YOLO_CONFIG_DIR", str(Path.cwd() / ".state" / "ultralytics"))
     parser = argparse.ArgumentParser(description="AeroVision Lab small GPU pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Print versions and GPU information")

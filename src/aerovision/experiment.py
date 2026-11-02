@@ -196,8 +196,8 @@ def compare(
         evaluator.params.maxDets = [1, 10, 300]
         evaluator.evaluate()
         evaluator.accumulate()
-        evaluator.summarize()
-        # stats[0] assumes maxDets=100 internally, so compute AP explicitly at index 2.
+        # The standard summary hardcodes maxDets=100 for AP; report our explicit
+        # maxDets=300 slices instead of printing a misleading -1 headline.
         precision = evaluator.eval["precision"]
 
         def mean_valid(a):

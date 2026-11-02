@@ -8,7 +8,8 @@ import yaml
 from PIL import Image
 
 
-def test_exact_predictions_and_ignored_regions_score_perfectly(tmp_path, monkeypatch):
+@pytest.mark.parametrize("has_predictions,expected", [(True, 1), (False, 0)])
+def test_known_predictions_and_ignored_regions(tmp_path, monkeypatch, has_predictions, expected):
     from aerovision import experiment, tiles
     from ultralytics import YOLO
 
@@ -34,6 +35,8 @@ def test_exact_predictions_and_ignored_regions_score_perfectly(tmp_path, monkeyp
     monkeypatch.setattr(experiment, "environment", lambda: {})
 
     def predict(*args):
+        if not has_predictions:
+            return [], 1
         return [
             {"category_id": 0, "bbox": [65, 65, 10, 10], "score": 0.99},
             {"category_id": 0, "bbox": [10, 10, 10, 10], "score": 0.9},
@@ -42,7 +45,7 @@ def test_exact_predictions_and_ignored_regions_score_perfectly(tmp_path, monkeyp
     monkeypatch.setattr(tiles, "predict", predict)
     report = experiment.compare(data, weights, device="cpu", output=tmp_path / "output")
     for mode in report["modes"].values():
-        assert mode["ap"] == pytest.approx(1)
-        assert mode["ap_small"] == pytest.approx(1)
-        assert mode["recall_small"] == pytest.approx(1)
+        assert mode["ap"] == pytest.approx(expected)
+        assert mode["ap_small"] == pytest.approx(expected)
+        assert mode["recall_small"] == pytest.approx(expected)
         assert mode["images"] == 1
