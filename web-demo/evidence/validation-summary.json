@@ -1,0 +1,35 @@
+{
+  "source": "https://github.com/puneetpal-singh/aerovision-lab/blob/main/README.md",
+  "images": 548,
+  "note": "Published rounded validation values; one frozen full-data checkpoint; tiled overlap 0.20.",
+  "rows": [
+    {
+      "name": "Whole 640",
+      "ap": 16.26,
+      "small": 7.75,
+      "recall": 13.91,
+      "latency": 12.5
+    },
+    {
+      "name": "Whole 960",
+      "ap": 20.99,
+      "small": 13.01,
+      "recall": 23.0,
+      "latency": 13.8
+    },
+    {
+      "name": "Whole 1280",
+      "ap": 21.73,
+      "small": 15.22,
+      "recall": 28.02,
+      "latency": 16.4
+    },
+    {
+      "name": "Tiled 640",
+      "ap": 20.47,
+      "small": 14.47,
+      "recall": 28.92,
+      "latency": 66.1
+    }
+  ]
+}

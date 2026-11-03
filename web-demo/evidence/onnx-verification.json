@@ -1,0 +1,331 @@
+{
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "commit": "6b5f4c230e7390bd47701c0c46d6c1389a0d4b30",
+    "packages": {
+      "ultralytics": "8.3.228",
+      "torch": "2.7.1+cu118",
+      "torchvision": "0.22.1+cu118",
+      "numpy": "2.2.6",
+      "pycocotools": "2.0.11"
+    },
+    "cuda_available": false,
+    "gpu": null,
+    "cuda": "11.8"
+  },
+  "provider": [
+    "CPUExecutionProvider"
+  ],
+  "onnx_version": "1.18.0",
+  "onnxruntime_version": "1.22.1",
+  "weights_sha256": "9ea4e947efe74f75703ab2c5a32bf5a6af70124945a6ee9bd366c7cd83172840",
+  "onnx_sha256": "663af645fd72248371fda473759aba2fcb1b69f84c3bfca7d36190b30af1918d",
+  "verification_code_sha256": "7e259e327e336ddc930e93052f7690917c6ff19a98e9b9d9ece76d2ef547e2a9",
+  "protocol": "CPU FP32 export sanity check on fixed validation images; not full accuracy or GPU benchmark",
+  "preprocessing": {
+    "imgsz": 1280,
+    "letterbox_auto": true,
+    "stride": 32,
+    "color": "RGB",
+    "scale": "float32 / 255"
+  },
+  "raw_tolerances": {
+    "rtol": 0.0001,
+    "atol": 0.001
+  },
+  "postprocessing": {
+    "conf": 0.3,
+    "iou": 0.7,
+    "max_det": 1000,
+    "match_iou": 0.99,
+    "score_atol": 0.001
+  },
+  "images": [
+    {
+      "file_name": "0000001_02999_d_0000005.jpg",
+      "sha256": "fc80a9305b38af026091cbe0a1d4cfe059964852253b93f01fee17b7443e5514",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.003143310546875,
+      "box_max_abs": 0.003143310546875,
+      "score_max_abs": 2.950429916381836e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 71,
+        "candidate_count": 71,
+        "matched": 71,
+        "minimum_iou": 0.9999926686286926,
+        "maximum_score_delta": 2.175569534301758e-06
+      },
+      "cpu_reference_ms": 216.92450000045937,
+      "cpu_onnx_ms": 237.27710000093793
+    },
+    {
+      "file_name": "0000103_03349_d_0000031.jpg",
+      "sha256": "5b1939e07ecfaab560d16a41f754a816dd5c3bb7a82879984b44e9fa7d9f179c",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.001708984375,
+      "box_max_abs": 0.001708984375,
+      "score_max_abs": 1.7285346984863281e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 1,
+        "candidate_count": 1,
+        "matched": 1,
+        "minimum_iou": 0.9999994039535522,
+        "maximum_score_delta": 1.7285346984863281e-06
+      },
+      "cpu_reference_ms": 178.71430000013788,
+      "cpu_onnx_ms": 237.40369999723043
+    },
+    {
+      "file_name": "0000194_00399_d_0000121.jpg",
+      "sha256": "7187015e5cfa468e0fc06880149ea4c44933145915acd891caafda6d4decc51c",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.001708984375,
+      "box_max_abs": 0.001708984375,
+      "score_max_abs": 5.632638931274414e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 87,
+        "candidate_count": 87,
+        "matched": 87,
+        "minimum_iou": 0.9999923706054688,
+        "maximum_score_delta": 2.175569534301758e-06
+      },
+      "cpu_reference_ms": 179.1388999990886,
+      "cpu_onnx_ms": 222.72570000131964
+    },
+    {
+      "file_name": "0000244_03500_d_0000008.jpg",
+      "sha256": "d175f4e5c81611468f8a0fbe61783cbdbf15396f750974a3ba4a5bd437a115c7",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.002197265625,
+      "box_max_abs": 0.002197265625,
+      "score_max_abs": 5.245208740234375e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 70,
+        "candidate_count": 70,
+        "matched": 70,
+        "minimum_iou": 0.9999828338623047,
+        "maximum_score_delta": 3.159046173095703e-06
+      },
+      "cpu_reference_ms": 180.80529999861028,
+      "cpu_onnx_ms": 247.53489999784506
+    },
+    {
+      "file_name": "0000276_02601_d_0000520.jpg",
+      "sha256": "4d45fedb318c864cd6902ccfff5a0f5f5dfbcc6150fe91fefeb6319f17f773ad",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.001373291015625,
+      "box_max_abs": 0.001373291015625,
+      "score_max_abs": 3.2186508178710938e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 23,
+        "candidate_count": 23,
+        "matched": 23,
+        "minimum_iou": 0.9999955892562866,
+        "maximum_score_delta": 1.9073486328125e-06
+      },
+      "cpu_reference_ms": 177.36259999946924,
+      "cpu_onnx_ms": 222.2040000015113
+    },
+    {
+      "file_name": "0000287_00001_d_0000759.jpg",
+      "sha256": "a5322a39be7c689f4c9cad18f02dff493ea7bfe1540677a24f280923126e973e",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.00177001953125,
+      "box_max_abs": 0.00177001953125,
+      "score_max_abs": 7.361173629760742e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 61,
+        "candidate_count": 61,
+        "matched": 61,
+        "minimum_iou": 0.9999876618385315,
+        "maximum_score_delta": 2.2649765014648438e-06
+      },
+      "cpu_reference_ms": 176.21580000195536,
+      "cpu_onnx_ms": 222.0491000007314
+    },
+    {
+      "file_name": "0000291_01801_d_0000877.jpg",
+      "sha256": "809f5dd32db213a00ee48677bb32c3a1de62efcce93da90836089706ed1c0a10",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.001708984375,
+      "box_max_abs": 0.001708984375,
+      "score_max_abs": 7.510185241699219e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 103,
+        "candidate_count": 103,
+        "matched": 103,
+        "minimum_iou": 0.9999903440475464,
+        "maximum_score_delta": 2.8908252716064453e-06
+      },
+      "cpu_reference_ms": 185.64349999724072,
+      "cpu_onnx_ms": 226.43520000201534
+    },
+    {
+      "file_name": "0000316_01401_d_0000526.jpg",
+      "sha256": "957041f146c7755e316302bfc9498f5e293c67aacd07c778c915a1b47803a53e",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.0018310546875,
+      "box_max_abs": 0.0018310546875,
+      "score_max_abs": 3.0994415283203125e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 28,
+        "candidate_count": 28,
+        "matched": 28,
+        "minimum_iou": 0.9999921917915344,
+        "maximum_score_delta": 1.4901161193847656e-06
+      },
+      "cpu_reference_ms": 172.18080000020564,
+      "cpu_onnx_ms": 218.2503000003635
+    },
+    {
+      "file_name": "0000335_03725_d_0000062.jpg",
+      "sha256": "99ab05d0a372295b9278fad04783e4e7025999772093d325aac972ea22d059a4",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.00322723388671875,
+      "box_max_abs": 0.00322723388671875,
+      "score_max_abs": 6.0498714447021484e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 27,
+        "candidate_count": 27,
+        "matched": 27,
+        "minimum_iou": 0.9999971985816956,
+        "maximum_score_delta": 1.1622905731201172e-06
+      },
+      "cpu_reference_ms": 181.5707999994629,
+      "cpu_onnx_ms": 222.33160000178032
+    },
+    {
+      "file_name": "0000364_01177_d_0000799.jpg",
+      "sha256": "f6c503f493a595492955a47c4ddb5ac65b5202dc0775a9a10758d29e7cd65d05",
+      "input_shape": [
+        1,
+        3,
+        736,
+        1280
+      ],
+      "raw_passed": true,
+      "raw_max_abs": 0.00250244140625,
+      "box_max_abs": 0.00250244140625,
+      "score_max_abs": 3.039836883544922e-06,
+      "detections": {
+        "passed": true,
+        "reference_count": 47,
+        "candidate_count": 47,
+        "matched": 47,
+        "minimum_iou": 0.999984622001648,
+        "maximum_score_delta": 1.8477439880371094e-06
+      },
+      "cpu_reference_ms": 177.13050000020303,
+      "cpu_onnx_ms": 220.3525000004447
+    }
+  ],
+  "classes": {
+    "0": "pedestrian",
+    "1": "people",
+    "2": "bicycle",
+    "3": "car",
+    "4": "van",
+    "5": "truck",
+    "6": "tricycle",
+    "7": "awning-tricycle",
+    "8": "bus",
+    "9": "motor"
+  },
+  "synthetic_shapes": [
+    {
+      "input_shape": [
+        1,
+        3,
+        640,
+        640
+      ],
+      "passed": true,
+      "raw_max_abs": 0.000217437744140625
+    },
+    {
+      "input_shape": [
+        1,
+        3,
+        1280,
+        1280
+      ],
+      "passed": true,
+      "raw_max_abs": 0.00042724609375
+    },
+    {
+      "input_shape": [
+        1,
+        3,
+        960,
+        1280
+      ],
+      "passed": true,
+      "raw_max_abs": 0.0003662109375
+    }
+  ],
+  "passed": true
+}

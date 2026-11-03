@@ -1,0 +1,84 @@
+{
+  "classes": [
+    {
+      "name": "pedestrian",
+      "baseline": 7.752667039598737,
+      "candidate": 14.084774533990272
+    },
+    {
+      "name": "people",
+      "baseline": 2.601816947940102,
+      "candidate": 5.076841709924802
+    },
+    {
+      "name": "bicycle",
+      "baseline": 1.1956486466293754,
+      "candidate": 2.5970667405280223
+    },
+    {
+      "name": "car",
+      "baseline": 39.002062687401626,
+      "candidate": 50.22264890726649
+    },
+    {
+      "name": "van",
+      "baseline": 14.820072278099488,
+      "candidate": 23.230969560707827
+    },
+    {
+      "name": "truck",
+      "baseline": 19.638356391935748,
+      "candidate": 22.57590666358289
+    },
+    {
+      "name": "tricycle",
+      "baseline": 6.6145149172828726,
+      "candidate": 9.075116432757484
+    },
+    {
+      "name": "awning-tricycle",
+      "baseline": 5.1141465245381506,
+      "candidate": 6.86403119698905
+    },
+    {
+      "name": "bus",
+      "baseline": 32.36238791420206,
+      "candidate": 38.271247042969954
+    },
+    {
+      "name": "motor",
+      "baseline": 7.789336170956242,
+      "candidate": 14.055542118840664
+    }
+  ],
+  "validation": [
+    {
+      "name": "Whole 640",
+      "ap": 16.26,
+      "small": 7.75,
+      "recall": 13.91,
+      "latency": 12.5
+    },
+    {
+      "name": "Whole 960",
+      "ap": 20.99,
+      "small": 13.01,
+      "recall": 23.0,
+      "latency": 13.8
+    },
+    {
+      "name": "Whole 1280",
+      "ap": 21.73,
+      "small": 15.22,
+      "recall": 28.02,
+      "latency": 16.4
+    },
+    {
+      "name": "Tiled 640",
+      "ap": 20.47,
+      "small": 14.47,
+      "recall": 28.92,
+      "latency": 66.1
+    }
+  ]
+}

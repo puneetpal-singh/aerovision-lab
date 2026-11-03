@@ -6,6 +6,8 @@ A compact aerial-object detector with a reproducible experiment trail and a loca
 
 ![AeroVision Lab interface](docs/assets/demo-home.png)
 
+The public page combines an interactive results study (resolution, tiling, held-out class AP, training/export workflow) with the live image detector. Charts link to the original experiment records and separate T4 measurements from browser timings.
+
 **[Open the live browser demo](https://www.puneetpal.com/demos/aerovision/index.html)** · [Portfolio project](https://www.puneetpal.com/projects?project=16)
 
 ## Try the demo
